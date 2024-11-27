@@ -16,8 +16,7 @@ pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
 
     if !pk_file.exists() || !vk_file.exists() {
         panic!(
-            "The vk or pk doesn't exist in the path: {}. Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",
-            inputdir 
+            "The vk or pk doesn't exist in the path: {}. Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",inputdir 
         );
     }
 
