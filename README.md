@@ -34,14 +34,27 @@ There are two ways to prove the guest program:
 │   ├── sha2-go
 │   └── sha2-rust
 │  
-├── host-program                //Generate the proof and verifier contracts  to the  guest programs
-│   ├── Cargo.toml
-│   ├── run-local-proving.sh
-│   ├── run-network-proving.sh
-│   ├── src
-│      └── bin
-│          └── zkm-prove.rs
-
+├── host-program                //Generate the proof and verifier contracts  for the  guest programs
+│   ├── mem-alloc-vec
+│   │   ├── Cargo.toml
+│   │   ├── run-proving.sh
+│   │   └── src
+│   │       └── main.rs
+│   ├── revme
+│   │   ├── Cargo.toml
+│   │   ├── run-proving.sh
+│   │   └── src
+│   │       └── main.rs
+│   ├── sha2-go
+│   │   ├── Cargo.toml
+│   │   ├── run-proving.sh
+│   │   └── src
+│   │       └── main.rs
+│   ├── sha2-rust
+│   │   ├── Cargo.toml
+│   │   ├── run-proving.sh
+│   │   └── src
+│   │       └── main.rs
 ├── install_mips_rust_tool
 ├── rust-toolchain.toml
 ├── sdk                         //Support proof network and local proof
