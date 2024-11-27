@@ -1,6 +1,7 @@
 extern crate libc;
 use libc::c_int;
 use std::os::raw::c_char;
+use std::path::Path;
 
 extern "C" {
     fn Stark2Snark(inputdir: *const c_char, outputdir: *const c_char) -> c_int;
@@ -9,7 +10,7 @@ extern "C" {
 
 #[cfg(feature = "snark")]
 pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
-    let path = Path::new(vk_path);
+    let path = Path::new(inputdir);
 
     let pk_file = path.with_file_name("proving.key");
     let vk_file = path.with_file_name("verifying.key");
@@ -17,7 +18,7 @@ pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
     if !pk_file.exists() || vk_file.exists() {
         panic!(
             "The vk or pk doesn't exist in the path:{} . Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",
-            vk_path
+            inputdir
         );
     }
 
