@@ -31,8 +31,8 @@ impl ProverTask {
 
     fn run(&mut self) {
         let mut result = ProverResult::default();
-        let inputdir = self.vk_path.to_owned();
-
+        let vk_path = self.vk_path.to_owned();
+        let inputdir = format!("/tmp/{}/input", self.proof_id);
         let outputdir = format!("/tmp/{}/output", self.proof_id);
         fs::create_dir_all(&inputdir).unwrap();
         fs::create_dir_all(&outputdir).unwrap();
@@ -47,7 +47,7 @@ impl ProverTask {
                 "There is only one segment with segment size {}, will skip the aggregation!",
                 self.input.seg_size
             );
-        } else if crate::local::snark::prove_snark(&inputdir, &outputdir).expect("true or false") {
+        } else if crate::local::snark::prove_snark(&vk_path, &outputdir).expect("true or false") {
             result.stark_proof =
                 std::fs::read(format!("{}/proof_with_public_inputs.json", inputdir)).unwrap();
             result.proof_with_public_inputs =
@@ -145,18 +145,44 @@ impl Prover for LocalProver {
         let mut result = ProverResult::default();
         //let inputdir = format!("{}/input", vk_path);
         fs::create_dir_all(vk_path).unwrap();
-        delete_dir_contents(vk_path).context("Failed to clear input directory")?;
-        let should_agg = crate::local::stark::prove_stark(input, vk_path, &mut result).unwrap();
+        //delete_dir_contents(vk_path).context("Failed to clear input directory")?;
+        let tem_dir = "/tmp/setup";
+        fs::create_dir_all(tem_dir).unwrap();
+        delete_dir_contents(tem_dir).context("Failed to clear input directory")?;
+
+        let should_agg = crate::local::stark::prove_stark(input, tem_dir, &mut result).unwrap();
         if !should_agg {
             log::info!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters.");
             return Err(anyhow::anyhow!(
                 "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
         }
 
-        match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
+        match crate::local::snark::setup_and_generate_sol_verifier(tem_dir) {
             Ok(true) => {
-                let segments = format!("{}/input", vk_path);
-                delete_dir_contents(segments).context("Failed to clear segments directory")?;
+                //copy the result files to vk_path
+                //1. pk 
+                let src_path = Path::new(tem_dir);
+                let src_file = src_path.join("proving.key");
+                let dst_path = Path::new(vk_path);
+                let dst_file = dst_path.join("proving.key");
+                fs::copy(src_file, dst_file)?;
+
+                //2. vk
+                let src_file = src_path.join("verifying.key");
+                let dst_file = dst_path.join("verifying.key");
+                fs::copy(src_file, dst_file)?;
+
+                //3. contract
+                let src_file = src_path.join("verifier.sol");
+                let dst_file = dst_path.join("verifier.sol");
+                fs::copy(src_file, dst_file)?;
+
+                //4. circuit
+                let src_file = src_path.join("circuit");
+                let dst_file = dst_path.join("circuit");
+                fs::copy(src_file, dst_file)?;
+                
+
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
             }

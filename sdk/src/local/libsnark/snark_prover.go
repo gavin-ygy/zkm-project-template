@@ -41,26 +41,7 @@ func (obj *SnarkProver) loadKeys(inputdir string) error {
 	_, err := os.Stat(circuitPath)
 
 	if os.IsNotExist(err) {
-		commonCircuitData, _ := types.ReadCommonCircuitData(inputdir + "/common_circuit_data.json")
-		proofWithPisData, _ := types.ReadProofWithPublicInputs(inputdir + "/proof_with_public_inputs.json")
-		proofWithPis := variables.DeserializeProofWithPublicInputs(proofWithPisData)
-
-		verifierOnlyCircuitRawData, _ := types.ReadVerifierOnlyCircuitData(inputdir + "/verifier_only_circuit_data.json")
-		verifierOnlyCircuitData := variables.DeserializeVerifierOnlyCircuitData(verifierOnlyCircuitRawData)
-
-		circuit := verifier.ExampleVerifierCircuit{
-			PublicInputsHash:        proofWithPis.PublicInputsHash,
-			Proof:                   proofWithPis.Proof,
-			PublicInputs:            proofWithPis.PublicInputs,
-			VerifierOnlyCircuitData: verifierOnlyCircuitData,
-			CommonCircuitData:       commonCircuitData,
-		}
-
-		var builder frontend.NewBuilder = r1cs.NewBuilder
-		obj.r1cs_circuit, _ = frontend.Compile(ecc.BN254.ScalarField(), builder, &circuit)
-		fR1CS, _ := os.Create(circuitPath)
-		obj.r1cs_circuit.WriteTo(fR1CS)
-		fR1CS.Close()
+		return fmt.Errorf("snark: doesn't find the circuit file in %s.", inputdir)
 	} else if err != nil {
 		// Handle other potential errors, such as permission issues
 		return fmt.Errorf("snark: no permission to read the circuit file. ")
@@ -78,7 +59,7 @@ func (obj *SnarkProver) loadKeys(inputdir string) error {
 
 	_, err = os.Stat(pkPath)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("snark: not find the pk file in %s.", inputdir)
+		return fmt.Errorf("snark: doesn't find the pk file in %s.", inputdir)
 		
 	} else if err != nil {
 		// Handle other potential errors, such as permission issues

@@ -62,71 +62,68 @@ pub fn save_data_as_json<T: Serialize>(
 }
 
 // Generic function to save data to a file
-    pub fn save_data_to_file<P: AsRef<Path>, D: AsRef<[u8]>>(
-        output_dir: P,
-        file_name: &str,
-        data: D,
-    ) -> anyhow::Result<()> {
-        // Create the output directory
-        let output_dir = output_dir.as_ref();
-        fs::create_dir_all(output_dir).context("Failed to create output directory")?;
+pub fn save_data_to_file<P: AsRef<Path>, D: AsRef<[u8]>>(
+    output_dir: P,
+    file_name: &str,
+    data: D,
+) -> anyhow::Result<()> {
+    // Create the output directory
+    let output_dir = output_dir.as_ref();
+    fs::create_dir_all(output_dir).context("Failed to create output directory")?;
 
-        // Build the full file path
-        let output_path = output_dir.join(file_name);
+    // Build the full file path
+    let output_path = output_dir.join(file_name);
 
-        // Open the file and write the data
-        let mut file = File::create(&output_path).context("Unable to create file")?;
-        file.write_all(data.as_ref())
-            .context("Failed to write to file")?;
+    // Open the file and write the data
+    let mut file = File::create(&output_path).context("Unable to create file")?;
+    file.write_all(data.as_ref())
+        .context("Failed to write to file")?;
 
-        let bytes_written = data.as_ref().len();
-        log::info!("Successfully written {} bytes.", bytes_written);
+    let bytes_written = data.as_ref().len();
+    log::info!("Successfully written {} bytes.", bytes_written);
 
-        Ok(())
-    }
-
-pub fn update_public_inputs_with_bincode(
-        public_inputstream: Vec<u8>,
-        proof_public_inputs: &[u8],
-) -> anyhow::Result<Option<PublicInputs>> {
-        let mut hasher = Sha256::new();
-        hasher.update(&public_inputstream);
-        let result_hs = hasher.finalize();
-        let output_hs: [u8; 32] = result_hs.into();
-
-        let slice_bt: &[u8] = proof_public_inputs;
-        let mut public_inputs: PublicInputs =
-            serde_json::from_slice(slice_bt).expect("Failed to parse JSON");
-
-        //1.check the userdata (from the proof) = hash(bincode(host's public_inputs)) ?
-        let userdata = public_inputs.userdata;
-        if userdata == output_hs {
-            log::info!(" hash(bincode(pulic_input))1: {:?} ", &userdata);
-            //2, update  userdata with bincode(host's  public_inputs).
-            //the userdata is saved in the public_inputs.json.
-            //the test contract  validates the public inputs in the snark proof file using this userdata.
-            public_inputs.userdata = public_inputstream;
-        } else if public_inputstream.is_empty() {
-            log::info!(" hash(bincode(pulic_input))2: {:?} ", &userdata);
-            //2', in this case, the bincode(public inputs) need setting to vec![0u8; 32].
-            //the userdata is saved in the public_inputs.json.
-            //the test contract  validates the public inputs in the snark proof file using this userdata.
-            public_inputs.userdata = vec![0u8; 32];
-        } else {
-            log::info!(
-                "public inputs's hash is different. the proof's is: {:?}, host's is :{:?} ",
-                userdata,
-                output_hs
-            );
-            //return Err(anyhow::anyhow!(
-            //    "Public inputs's hash does not match the proof's userdata."
-            //));
-            bail!("Public inputs's hash does not match the proof's userdata.");
-        }
-
-        Ok(Some(public_inputs))
+    Ok(())
 }
 
+pub fn update_public_inputs_with_bincode(
+    public_inputstream: Vec<u8>,
+    proof_public_inputs: &[u8],
+) -> anyhow::Result<Option<PublicInputs>> {
+    let mut hasher = Sha256::new();
+    hasher.update(&public_inputstream);
+    let result_hs = hasher.finalize();
+    let output_hs: [u8; 32] = result_hs.into();
+
+    let slice_bt: &[u8] = proof_public_inputs;
+    let mut public_inputs: PublicInputs =
+        serde_json::from_slice(slice_bt).expect("Failed to parse JSON");
+
+    //1.check the userdata (from the proof) = hash(bincode(host's public_inputs)) ?
+    let userdata = public_inputs.userdata;
+    if userdata == output_hs {
+        log::info!(" hash(bincode(pulic_input))1: {:?} ", &userdata);
+        //2, update  userdata with bincode(host's  public_inputs).
+        //the userdata is saved in the public_inputs.json.
+        //the test contract  validates the public inputs in the snark proof file using this userdata.
+        public_inputs.userdata = public_inputstream;
+    } else if public_inputstream.is_empty() {
+        log::info!(" hash(bincode(pulic_input))2: {:?} ", &userdata);
+        //2', in this case, the bincode(public inputs) need setting to vec![0u8; 32].
+        //the userdata is saved in the public_inputs.json.
+        //the test contract  validates the public inputs in the snark proof file using this userdata.
+        public_inputs.userdata = vec![0u8; 32];
+    } else {
+        log::info!(
+            "public inputs's hash is different. the proof's is: {:?}, host's is :{:?} ",
+            userdata,
+            output_hs
+        );
+        
+        bail!("Public inputs's hash does not match the proof's userdata.");
+    }
+
+    Ok(Some(public_inputs))
+}
 
 impl ProverClient {
     pub async fn new(client_type: &ClientType) -> Self {
@@ -156,10 +153,18 @@ impl ProverClient {
         }
     }
 
-    pub async fn setup_and_generate_sol_verifier(&self, zkm_prover: &str, vk_path: &str, prover_input: &ProverInput) {
+    pub async fn setup_and_generate_sol_verifier(
+        &self,
+        zkm_prover: &str,
+        vk_path: &str,
+        prover_input: &ProverInput,
+    ) {
         if is_local_prover(zkm_prover) {
-                log::info!("excuting the setup.");
-                let _ = self.prover.setup_and_generate_sol_verifier(vk_path, prover_input, None).await;
+            log::info!("excuting the setup.");
+            let _ = self
+                .prover
+                .setup_and_generate_sol_verifier(vk_path, prover_input, None)
+                .await;
         }
     }
 
@@ -182,9 +187,7 @@ impl ProverClient {
                     "Fail: the SEG_SIZE={} out of the range of the proof network's.",
                     input.seg_size
                 );
-                //return Err(anyhow::anyhow!(
-                //    "SEG_SIZE is out of the range of the proof network's."
-                //));
+                
                 bail!("SEG_SIZE is out of the range of the proof network's");
             }
         }
@@ -210,12 +213,10 @@ impl ProverClient {
             }
             Ok(None) => {
                 log::info!("Failed to update the public inputs.");
-                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
                 bail!("Failed to update the public inputs.");
             }
             Err(e) => {
                 log::info!("Failed to update the public inputs. error: {}", e);
-                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
                 bail!("Failed to update the public inputs.");
             }
         }
@@ -236,7 +237,6 @@ impl ProverClient {
         Ok(())
     }
 
-    
     // Generic function that automatically determines and prints based on the type T
     pub fn print_guest_execution_output(
         &self,
@@ -274,7 +274,6 @@ impl ProverClient {
                 "output_stream.len() is too short: {}",
                 prover_result.output_stream.len()
             );
-            //return Err(anyhow::anyhow!("output_stream.len() is too short."));
             bail!("output_stream.len() is too short.");
         }
         log::info!("Executing the guest program  successfully.");
