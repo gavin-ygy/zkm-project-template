@@ -8,11 +8,11 @@ import (
 //export Stark2Snark
 func Stark2Snark(keypath *C.char, inputdir *C.char, outputdir *C.char) C.int {
 	// Convert C strings to Go strings
-	keypath := C.GoString(keypath)
+	keyPath := C.GoString(keypath)
 	inputDir := C.GoString(inputdir)
 	outputDir := C.GoString(outputdir)
 	var prover SnarkProver
-	err := prover.Prove(keypath, inputDir, outputDir)
+	err := prover.Prove(keyPath, inputDir, outputDir)
 	if err != nil {
 		//fmt.Printf("Stark2Snark error: %v\n", err)
 		return -1
