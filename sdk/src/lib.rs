@@ -220,7 +220,18 @@ impl ProverClient {
             }
         }
 
-        log::info!("Generating proof successfully .The snark proof and public inputs  are in the the path {}/verifier .", proof_results_path);
+        //3.contract,only for network proving
+        if !is_local_prover(zkm_prover_type) {
+            let output_dir = format!("{}/src", proof_results_path);
+            log::info!("save the verifier contract:  ");
+            save_data_to_file(
+                &output_dir,
+                "verifier.sol",
+                &prover_result.solidity_verifier,
+            )?;
+        }
+
+        log::info!("Generating proof successfully .The snark proof and contract  are in the the path {}/{{verifier,src}} .", proof_results_path);
 
         Ok(())
     }

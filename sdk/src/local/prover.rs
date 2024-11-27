@@ -155,6 +155,8 @@ impl Prover for LocalProver {
 
         match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
             Ok(true) => {
+                let segments = format!("{}/input", vk_path);
+                delete_dir_contents(segments).context("Failed to clear segments directory")?;
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
             }
