@@ -4,13 +4,13 @@ use std::os::raw::c_char;
 use std::path::Path;
 
 extern "C" {
-    fn Stark2Snark(inputdir: *const c_char, outputdir: *const c_char) -> c_int;
+    fn Stark2Snark(keypath: *const c_char, inputdir: *const c_char, outputdir: *const c_char) -> c_int;
     fn SetupAndGenerateSolVerifier(inputdir: *const c_char) -> c_int;
 }
 
 #[cfg(feature = "snark")]
-pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
-    let path = Path::new(inputdir);
+pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
+    let path = Path::new(keypath);
     let pk_file = path.join("proving.key");
     let vk_file = path.join("verifying.key");
 
@@ -20,10 +20,11 @@ pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
         );
     }
 
+    let keypath = std::ffi::CString::new(keypath).unwrap();
     let inputdir = std::ffi::CString::new(inputdir).unwrap();
     let outputdir = std::ffi::CString::new(outputdir).unwrap();
 
-    let ret = unsafe { Stark2Snark(inputdir.as_ptr(), outputdir.as_ptr()) };
+    let ret = unsafe { Stark2Snark(keypath.as_ptr(), inputdir.as_ptr(), outputdir.as_ptr()) };
     if ret == 0 {
         Ok(true)
     } else {
@@ -32,7 +33,7 @@ pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
 }
 
 #[cfg(not(feature = "snark"))]
-pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
+pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
     panic!("not support snark");
 }
 

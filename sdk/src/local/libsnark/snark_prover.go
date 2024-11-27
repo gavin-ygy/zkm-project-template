@@ -293,8 +293,8 @@ func (obj *SnarkProver) SetupAndGenerateSolVerifier(inputdir string) error {
 }
 
 
-func (obj *SnarkProver) Prove(inputdir string, outputdir string) error {
-	if err := obj.loadKeys(inputdir); err != nil {
+func (obj *SnarkProver) Prove(keypath string, inputdir string, outputdir string) error {
+	if err := obj.loadKeys(keypath); err != nil {
 		return err
 	}
 
