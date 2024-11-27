@@ -303,7 +303,7 @@ func (obj *SnarkProver) SetupAndGenerateSolVerifier(inputdir string) error {
 		}
 	}
 
-	if err := obj.generateVerifySol(inputdir, outputdir); err != nil {
+	if err := obj.generateVerifySol(inputdir); err != nil {
 		return err
 	}
 
