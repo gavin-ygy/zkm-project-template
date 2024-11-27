@@ -4,11 +4,23 @@ use std::os::raw::c_char;
 
 extern "C" {
     fn Stark2Snark(inputdir: *const c_char, outputdir: *const c_char) -> c_int;
-    fn Setup(inputdir: *const c_char) -> c_int;
+    fn SetupAndGenerateSolVerifier(inputdir: *const c_char) -> c_int;
 }
 
 #[cfg(feature = "snark")]
 pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
+    let path = Path::new(vk_path);
+
+    let pk_file = path.with_file_name("proving.key");
+    let vk_file = path.with_file_name("verifying.key");
+
+    if !pk_file.exists() || vk_file.exists() {
+        panic!(
+            "The vk or pk doesn't exist in the path:{} . Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",
+            vk_path
+        );
+    }
+
     let inputdir = std::ffi::CString::new(inputdir).unwrap();
     let outputdir = std::ffi::CString::new(outputdir).unwrap();
 
@@ -26,10 +38,10 @@ pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
 }
 
 #[cfg(feature = "snark")]
-pub fn setup(inputdir: &str) -> anyhow::Result<bool> {
+pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<bool> {
     let inputdir = std::ffi::CString::new(inputdir).unwrap();
 
-    let ret = unsafe { Setup(inputdir.as_ptr()) };
+    let ret = unsafe { SetupAndGenerateSolVerifier(inputdir.as_ptr()) };
     if ret == 0 {
         Ok(true)
     } else {
@@ -38,6 +50,6 @@ pub fn setup(inputdir: &str) -> anyhow::Result<bool> {
 }
 
 #[cfg(not(feature = "snark"))]
-pub fn setup(inputdir: &str) -> anyhow::Result<bool> {
+pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<bool> {
     panic!("not support setup");
 }

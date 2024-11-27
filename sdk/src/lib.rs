@@ -37,137 +37,31 @@ pub struct Roots {
 pub const LOCAL_PROVER: &str = "local";
 pub const NETWORK_PROVER: &str = "network";
 
-impl ProverClient {
-    pub async fn new(client_type: &ClientType) -> Self {
-        #[allow(unreachable_code)]
-        match client_type.zkm_prover.as_str() {
-            "local" => Self {
-                prover: Box::new(LocalProver::new(&client_type.vk_path)),
-            },
-            "network" => Self {
-                prover: Box::new(NetworkProver::new(client_type).await.unwrap()),
-            },
-            _ => panic!(
-                "invalid value for ZKM_PROVER enviroment variable: expected 'local', or 'network'"
-            ),
-        }
-    }
+pub fn is_local_prover(zkm_prover: &str) -> bool {
+    zkm_prover.to_lowercase() == *LOCAL_PROVER
+}
 
-    pub fn local(vk_path: &str) -> Self {
-        Self {
-            prover: Box::new(LocalProver::new(vk_path)),
-        }
-    }
+// Generic function to save serialized data to a JSON file
+pub fn save_data_as_json<T: Serialize>(
+    output_dir: &str,
+    file_name: &str,
+    data: &T,
+) -> anyhow::Result<()> {
+    // Create the output directory
+    fs::create_dir_all(output_dir).context("Failed to create output directory")?;
 
-    pub async fn network(client_type: &ClientType) -> Self {
-        Self {
-            prover: Box::new(NetworkProver::new(client_type).await.unwrap()),
-        }
-    }
+    // Build the full file path
+    let output_path = Path::new(&output_dir).join(file_name);
 
-    pub fn is_local_prover(zkm_prover: &str) -> bool {
-        zkm_prover.to_lowercase() == *LOCAL_PROVER
-    }
+    // Open the file and write the data
+    let mut file = File::create(&output_path).context("Unable to create file")?;
+    to_writer(&mut file, data).context("Failed to write to file")?;
 
-    //If the vk or pk doesn't exist, it will run setup().
-    pub async fn setup(&self, zkm_prover: &str, vk_path: &str, prover_input: &ProverInput) {
-        if Self::is_local_prover(zkm_prover) {
-            //let pk_file = format!("{}/proving.key", vk_path);
-            //let vk_file = format!("{}/verifying.key", vk_path);
-            let path = Path::new(vk_path);
+    log::info!("Data successfully written to file.");
+    Ok(())
+}
 
-            let pk_file = path.with_file_name("proving.key");
-            let vk_file = path.with_file_name("proving.key");
-
-            if pk_file.exists() && vk_file.exists() {
-                log::info!(
-                    "The vk and pk all exist in the path:{} and don't need to setup.",
-                    vk_path
-                );
-            } else {
-                //setup the vk and pk for the first running local proving.
-                log::info!("excuting the setup.");
-                let _ = self.prover.setup(vk_path, prover_input, None).await;
-                log::info!(
-                    "setup successfully, the vk and pk all exist in the path:{}.",
-                    vk_path
-                );
-            }
-        }
-    }
-
-    pub fn process_proof_results(
-        &self,
-        prover_result: &ProverResult,
-        input: &ProverInput,
-        proof_results_path: &String,
-        zkm_prover_type: &str,
-    ) -> anyhow::Result<()> {
-        if prover_result.proof_with_public_inputs.is_empty() {
-            if Self::is_local_prover(zkm_prover_type) {
-                //local proving
-                log::info!("Fail: please try setting SEG_SIZE={}", input.seg_size / 2);
-                //return Err(anyhow::anyhow!("SEG_SIZE is excessively large."));
-                bail!("SEG_SIZE is excessively large.");
-            } else {
-                //network proving
-                log::info!(
-                    "Fail: the SEG_SIZE={} out of the range of the proof network's.",
-                    input.seg_size
-                );
-                //return Err(anyhow::anyhow!(
-                //    "SEG_SIZE is out of the range of the proof network's."
-                //));
-                bail!("SEG_SIZE is out of the range of the proof network's");
-            }
-        }
-        //1.snark proof
-        let output_dir = format!("{}/verifier", proof_results_path);
-        log::info!("save the snark proof:  ");
-        Self::save_data_to_file(
-            &output_dir,
-            "snark_proof_with_public_inputs.json",
-            &prover_result.proof_with_public_inputs,
-        )?;
-
-        //2.handle the public inputs
-        let public_inputs = Self::update_public_inputs_with_bincode(
-            input.public_inputstream.to_owned(),
-            &prover_result.public_values,
-        );
-        match public_inputs {
-            Ok(Some(inputs)) => {
-                let output_dir = format!("{}/verifier", proof_results_path);
-                log::info!("save the public inputs:  ");
-                Self::save_data_as_json(&output_dir, "public_inputs.json", &inputs)?;
-            }
-            Ok(None) => {
-                log::info!("Failed to update the public inputs.");
-                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
-                bail!("Failed to update the public inputs.");
-            }
-            Err(e) => {
-                log::info!("Failed to update the public inputs. error: {}", e);
-                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
-                bail!("Failed to update the public inputs.");
-            }
-        }
-
-        //3.contract
-        let output_dir = format!("{}/src", proof_results_path);
-        log::info!("save the verifier contract:  ");
-        Self::save_data_to_file(
-            &output_dir,
-            "verifier.sol",
-            &prover_result.solidity_verifier,
-        )?;
-
-        log::info!("Generating proof successfully .The proof file and verifier contract are in the the path {}/{{verifier,src}} .", proof_results_path);
-
-        Ok(())
-    }
-
-    // Generic function to save data to a file
+// Generic function to save data to a file
     pub fn save_data_to_file<P: AsRef<Path>, D: AsRef<[u8]>>(
         output_dir: P,
         file_name: &str,
@@ -191,30 +85,10 @@ impl ProverClient {
         Ok(())
     }
 
-    // Generic function to save serialized data to a JSON file
-    pub fn save_data_as_json<T: Serialize>(
-        output_dir: &str,
-        file_name: &str,
-        data: &T,
-    ) -> anyhow::Result<()> {
-        // Create the output directory
-        fs::create_dir_all(output_dir).context("Failed to create output directory")?;
-
-        // Build the full file path
-        let output_path = Path::new(&output_dir).join(file_name);
-
-        // Open the file and write the data
-        let mut file = File::create(&output_path).context("Unable to create file")?;
-        to_writer(&mut file, data).context("Failed to write to file")?;
-
-        log::info!("Data successfully written to file.");
-        Ok(())
-    }
-
-    pub fn update_public_inputs_with_bincode(
+pub fn update_public_inputs_with_bincode(
         public_inputstream: Vec<u8>,
         proof_public_inputs: &[u8],
-    ) -> anyhow::Result<Option<PublicInputs>> {
+) -> anyhow::Result<Option<PublicInputs>> {
         let mut hasher = Sha256::new();
         hasher.update(&public_inputstream);
         let result_hs = hasher.finalize();
@@ -251,8 +125,106 @@ impl ProverClient {
         }
 
         Ok(Some(public_inputs))
+}
+
+
+impl ProverClient {
+    pub async fn new(client_type: &ClientType) -> Self {
+        #[allow(unreachable_code)]
+        match client_type.zkm_prover.as_str() {
+            "local" => Self {
+                prover: Box::new(LocalProver::new(&client_type.vk_path)),
+            },
+            "network" => Self {
+                prover: Box::new(NetworkProver::new(client_type).await.unwrap()),
+            },
+            _ => panic!(
+                "invalid value for ZKM_PROVER enviroment variable: expected 'local', or 'network'"
+            ),
+        }
     }
 
+    pub fn local(vk_path: &str) -> Self {
+        Self {
+            prover: Box::new(LocalProver::new(vk_path)),
+        }
+    }
+
+    pub async fn network(client_type: &ClientType) -> Self {
+        Self {
+            prover: Box::new(NetworkProver::new(client_type).await.unwrap()),
+        }
+    }
+
+    pub async fn setup_and_generate_sol_verifier(&self, zkm_prover: &str, vk_path: &str, prover_input: &ProverInput) {
+        if is_local_prover(zkm_prover) {
+                log::info!("excuting the setup.");
+                let _ = self.prover.setup_and_generate_sol_verifier(vk_path, prover_input, None).await;
+    }
+
+    pub fn process_proof_results(
+        &self,
+        prover_result: &ProverResult,
+        input: &ProverInput,
+        proof_results_path: &String,
+        zkm_prover_type: &str,
+    ) -> anyhow::Result<()> {
+        if prover_result.proof_with_public_inputs.is_empty() {
+            if is_local_prover(zkm_prover_type) {
+                //local proving
+                log::info!("Fail: please try setting SEG_SIZE={}", input.seg_size / 2);
+                //return Err(anyhow::anyhow!("SEG_SIZE is excessively large."));
+                bail!("SEG_SIZE is excessively large.");
+            } else {
+                //network proving
+                log::info!(
+                    "Fail: the SEG_SIZE={} out of the range of the proof network's.",
+                    input.seg_size
+                );
+                //return Err(anyhow::anyhow!(
+                //    "SEG_SIZE is out of the range of the proof network's."
+                //));
+                bail!("SEG_SIZE is out of the range of the proof network's");
+            }
+        }
+        //1.snark proof
+        let output_dir = format!("{}/verifier", proof_results_path);
+        log::info!("save the snark proof:  ");
+        save_data_to_file(
+            &output_dir,
+            "snark_proof_with_public_inputs.json",
+            &prover_result.proof_with_public_inputs,
+        )?;
+
+        //2.handle the public inputs
+        let public_inputs = update_public_inputs_with_bincode(
+            input.public_inputstream.to_owned(),
+            &prover_result.public_values,
+        );
+        match public_inputs {
+            Ok(Some(inputs)) => {
+                let output_dir = format!("{}/verifier", proof_results_path);
+                log::info!("save the public inputs:  ");
+                save_data_as_json(&output_dir, "public_inputs.json", &inputs)?;
+            }
+            Ok(None) => {
+                log::info!("Failed to update the public inputs.");
+                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
+                bail!("Failed to update the public inputs.");
+            }
+            Err(e) => {
+                log::info!("Failed to update the public inputs. error: {}", e);
+                //return Err(anyhow::anyhow!("Failed to update the public inputs."));
+                bail!("Failed to update the public inputs.");
+            }
+        }
+
+        log::info!("Generating proof successfully .The snark proof and public inputs  are in the the path {}/verifier .", proof_results_path);
+
+        Ok(())
+    }
+
+    
     // Generic function that automatically determines and prints based on the type T
     pub fn print_guest_execution_output(
         &self,

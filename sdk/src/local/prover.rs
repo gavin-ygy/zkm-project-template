@@ -32,11 +32,7 @@ impl ProverTask {
     fn run(&mut self) {
         let mut result = ProverResult::default();
         let inputdir = self.vk_path.to_owned();
-        /*let inputdir = if self.setup_flag {
-            self.vk_path.to_owned()
-        } else {
-            format!("/tmp/{}/input", self.proof_id)
-        };*/
+
         let outputdir = format!("/tmp/{}/output", self.proof_id);
         fs::create_dir_all(&inputdir).unwrap();
         fs::create_dir_all(&outputdir).unwrap();
@@ -57,8 +53,8 @@ impl ProverTask {
             result.proof_with_public_inputs =
                 std::fs::read(format!("{}/snark_proof_with_public_inputs.json", outputdir))
                     .unwrap();
-            result.solidity_verifier =
-                std::fs::read(format!("{}/verifier.sol", outputdir)).unwrap();
+            //result.solidity_verifier =
+            //    std::fs::read(format!("{}/verifier.sol", outputdir)).unwrap();
             result.public_values =
                 std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
         } else {
@@ -76,7 +72,6 @@ impl ProverTask {
 pub struct LocalProver {
     tasks: Arc<Mutex<HashMap<String, Arc<Mutex<ProverTask>>>>>,
     vk_path: String,
-    //setup_flag: bool,
 }
 
 impl LocalProver {
@@ -141,7 +136,7 @@ impl Prover for LocalProver {
         }
     }
 
-    async fn setup<'a>(
+    async fn setup_and_generate_sol_verifier<'a>(
         &self,
         vk_path: &'a str,
         input: &'a ProverInput,
@@ -158,12 +153,12 @@ impl Prover for LocalProver {
                 "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
         }
 
-        match crate::local::snark::setup(vk_path) {
+        match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
             Ok(true) => {
-                log::info!("setup successful, the verify key is in the {}", vk_path);
+                log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
             }
-            Ok(false) => Err(anyhow::anyhow!("snark setup failed!")),
+            Ok(false) => Err(anyhow::anyhow!("snark: setup_and_generate_sol_verifier failed!")),
             Err(_) => todo!(),
         }
     }
