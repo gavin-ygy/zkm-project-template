@@ -181,6 +181,16 @@ impl Prover for LocalProver {
                 let src_file = src_path.join("circuit");
                 let dst_file = dst_path.join("circuit");
                 fs::copy(src_file, dst_file)?;
+
+                //5. proof_with_public_inputs.json , for snark proving
+                let src_file = src_path.join("proof_with_public_inputs.json");
+                let dst_file = dst_path.join("proof_with_public_inputs.json");
+                fs::copy(src_file, dst_file)?;
+
+                //6. verifier_only_circuit_data.json , for snark proving
+                let src_file = src_path.join("verifier_only_circuit_data.json");
+                let dst_file = dst_path.join("verifier_only_circuit_data.json");
+                fs::copy(src_file, dst_file)?;
                 
 
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
