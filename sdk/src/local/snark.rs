@@ -11,14 +11,13 @@ extern "C" {
 #[cfg(feature = "snark")]
 pub fn prove_snark(inputdir: &str, outputdir: &str) -> anyhow::Result<bool> {
     let path = Path::new(inputdir);
+    let pk_file = path.join("proving.key");
+    let vk_file = path.join("verifying.key");
 
-    let pk_file = path.with_file_name("proving.key");
-    let vk_file = path.with_file_name("verifying.key");
-
-    if !pk_file.exists() || vk_file.exists() {
+    if !pk_file.exists() || !vk_file.exists() {
         panic!(
-            "The vk or pk doesn't exist in the path:{} . Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",
-            inputdir
+            "The vk or pk doesn't exist in the path: {}. Please first set the SETUP_FLAG=true to run setup_and_generate_sol_verifier.",
+            inputdir 
         );
     }
 
