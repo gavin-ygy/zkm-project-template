@@ -102,11 +102,11 @@ async fn main() -> Result<()> {
         }
         Ok(None) => {
             log::info!("Failed to generate proof.The result is None.");
-            bail!(anyhow!("Failed to generate proof.");
+            bail!("Failed to generate proof.");
         }
         Err(e) => {
             log::info!("Failed to generate proof. error: {}", e);
-            bail!(anyhow!("Failed to generate proof.");
+            bail!("Failed to generate proof.");
         }
     }
 
