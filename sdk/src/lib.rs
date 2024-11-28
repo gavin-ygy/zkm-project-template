@@ -157,13 +157,13 @@ impl ProverClient {
         zkm_prover: &str,
         vk_path: &str,
         prover_input: &ProverInput,
-    ) {
+    )  -> anyhow::Result<()> {
         if is_local_prover(zkm_prover) {
             log::info!("excuting the setup.");
             let _ = self
                 .prover
                 .setup_and_generate_sol_verifier(vk_path, prover_input, None)
-                .await;
+                .await？;
         }
     }
 

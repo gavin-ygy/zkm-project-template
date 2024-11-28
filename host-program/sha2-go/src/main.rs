@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args_parameter = env::var("ARGS").unwrap_or("data-to-hash".to_string());
     //let json_path = env::var("JSON_PATH").expect("JSON PATH is missing");
     let proof_results_path = env::var("PROOF_RESULTS_PATH").unwrap_or("../contracts".to_string());
-    let vk_path1 = env::var("VERIFYING_KEY_PATH").unwrap_or("/tmp/input".to_string());
+    let vk_path = env::var("VERIFYING_KEY_PATH").unwrap_or("/tmp/input".to_string());
 
     //network proving
     let endpoint = env::var("ENDPOINT").unwrap_or(DEFAULT_PROVER_NETWORK_RPC.to_string());
