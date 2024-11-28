@@ -14,7 +14,7 @@ tokio = { version = "1.21.0", features = ["macros", "rt-multi-thread", "signal"]
 #ethers = "2.0.14"
 
 log = { version = "0.4.14", default-features = false }
-
+anyhow = "1.0.75"
 env_logger = "0.10.0"
 
 [build-dependencies]

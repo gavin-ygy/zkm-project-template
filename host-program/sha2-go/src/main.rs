@@ -1,15 +1,16 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs::read;
-
 use std::time::Instant;
+use anyhow::Result;
+use anyhow::bail;
 use zkm_sdk::{prover::ClientCfg, prover::ProverInput, ProverClient};
 
 pub const DEFAULT_PROVER_NETWORK_RPC: &str = "https://152.32.186.45:20002";
 pub const DEFALUT_PROVER_NETWORK_DOMAIN: &str = "stage";
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     env_logger::try_init().unwrap_or_default();
     let seg_size = env::var("SEG_SIZE")
         .ok()
@@ -74,7 +75,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
-                    return Err("Failed to setup_and_generate_sol_verifier.".into());
+                    bail!("Failed to setup_and_generate_sol_verifier.");
                 },
             }
     }
@@ -103,11 +104,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Ok(None) => {
             log::info!("Failed to generate proof.The result is None.");
-            return Err("Failed to generate proof.".into());
+            bail!("Failed to generate proof.");
         }
         Err(e) => {
             log::info!("Failed to generate proof. error: {}", e);
-            return Err("Failed to generate proof.".into());
+            bail!("Failed to generate proof.");
         }
     }
 
