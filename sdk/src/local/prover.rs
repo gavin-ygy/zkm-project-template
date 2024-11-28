@@ -46,21 +46,26 @@ impl ProverTask {
                 "There is only one segment with segment size {}, will skip the aggregation!",
                 self.input.seg_size
             );
-        } else if crate::local::snark::prove_snark(&vk_path, &inputdir, &outputdir)
-            .expect("true or false")
-        {
-            result.stark_proof =
-                std::fs::read(format!("{}/proof_with_public_inputs.json", inputdir)).unwrap();
-            result.proof_with_public_inputs =
-                std::fs::read(format!("{}/snark_proof_with_public_inputs.json", outputdir))
-                    .unwrap();
-            //result.solidity_verifier =
-            //    std::fs::read(format!("{}/verifier.sol", outputdir)).unwrap();
-            result.public_values =
-                std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
         } else {
-            log::error!("Failed to generate snark proof.");
-        }
+            match  crate::local::snark::prove_snark(&vk_path, &inputdir, &outputdir) {
+                Ok(()) => {
+                    result.stark_proof =
+                    std::fs::read(format!("{}/proof_with_public_inputs.json", inputdir)).unwrap();
+                    result.proof_with_public_inputs =
+                    std::fs::read(format!("{}/snark_proof_with_public_inputs.json", outputdir))
+                        .unwrap();
+                    //result.solidity_verifier =
+                    //    std::fs::read(format!("{}/verifier.sol", outputdir)).unwrap();
+                    result.public_values =
+                    std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
+                },
+                Err(e) => {
+                    log::error!("Snark error : {}", e);
+                    
+                },
+            }
+            
+        } 
         self.result = Some(result);
         self.is_done = true;
     }
