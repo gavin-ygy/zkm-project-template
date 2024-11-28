@@ -8,6 +8,7 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 use tokio::time::sleep;
+use anyhow::bail;
 
 pub struct ProverTask {
     proof_id: String,
