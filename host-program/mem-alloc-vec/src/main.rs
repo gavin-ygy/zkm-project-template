@@ -74,9 +74,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
                     return Err("Failed to setup_and_generate_sol_verifier.".into());
-                };
+                },
             }
-
     }
 
     let start = Instant::now();

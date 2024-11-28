@@ -67,11 +67,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //excuting the setup_and_generate_sol_verifier
     if setup_flag {
-        prover_client
+        match prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
-            .await;
-
-        //  return Ok(());
+            .await {
+                Ok(()) => Ok(),
+                Err(e) => {
+                    log::info!("Error during setup_and_generate_sol_verifier: {}", e);
+                    return Err("Failed to setup_and_generate_sol_verifier.".into());
+                },
+            }
     }
 
     let start = Instant::now();
