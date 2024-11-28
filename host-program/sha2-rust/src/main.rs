@@ -50,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         key_path: Some(key_path),
         domain_name: Some(domain_name),
         private_key: Some(private_key),
-        vk_path: vk_path1.to_owned(),
+        vk_path: vk_path.to_owned(),
     };
 
     log::info!("new prover client:");
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     set_guest_input(&mut prover_input, None);
 
     //excuting the setup_and_generate_sol_verifier
-    if setup_flag1 {
+    if setup_flag {
         prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
             .await;
