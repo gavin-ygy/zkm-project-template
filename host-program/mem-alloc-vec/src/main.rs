@@ -59,7 +59,7 @@ async fn main() -> Result<()> {
         private_inputstream: vec![],
         seg_size,
         execute_only,
-        args: "".into(),
+     //   args: "".into(),
     };
 
     //If the guest program does't have inputs, it does't need the set_guest_input().
