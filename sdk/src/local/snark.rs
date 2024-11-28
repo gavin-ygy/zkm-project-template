@@ -56,12 +56,12 @@ pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<()> {
 
     let ret = unsafe { SetupAndGenerateSolVerifier(inputdir.as_ptr(), &mut result) };
     if ret == 0 {
-        Ok(true)
+        Ok(())
     } else {
         let error_str = unsafe { std::ffi::CStr::from_ptr(result).to_string_lossy() };
         // Free the allocated C string
         unsafe { libc::free(result as *mut libc::c_void) };
-        //Ok(false)
+
         bail!("prove_snark error: {}", error_str)
     }
 }

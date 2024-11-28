@@ -145,8 +145,9 @@ impl Prover for LocalProver {
         let should_agg = crate::local::stark::prove_stark(input, vk_path, &mut result).unwrap();
         if !should_agg {
             log::info!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters.");
-            return Err(anyhow::anyhow!(
-                "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
+            //return Err(anyhow::anyhow!(
+            //    "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
+            bail!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!");
         }
 
         match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
