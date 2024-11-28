@@ -3,6 +3,7 @@ use libc::c_int;
 use std::os::raw::c_char;
 use std::path::Path;
 use anyhow::Context;
+use anyhow::bail;
 
 extern "C" {
     fn Stark2Snark(
@@ -32,7 +33,7 @@ pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Re
 
     let mut result: *mut libc::c_char = std::ptr::null_mut();
 
-    let ret = unsafe { Stark2Snark(keypath.as_ptr(), inputdir.as_ptr(), outputdir.as_ptr(), &mut result,) };
+    let ret = unsafe { Stark2Snark(keypath.as_ptr(), inputdir.as_ptr(), outputdir.as_ptr(), &mut result) };
     if ret == 0 {
         Ok(())
     } else {
@@ -50,7 +51,7 @@ pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Re
 }
 
 #[cfg(feature = "snark")]
-pub fn setup_and_generate_sol_verifier(inputdir: &str, &mut result,) -> anyhow::Result<()> {
+pub fn setup_and_generate_sol_verifier(inputdir: &str, &mut result) -> anyhow::Result<()> {
     let inputdir = std::ffi::CString::new(inputdir).unwrap();
 
     let ret = unsafe { SetupAndGenerateSolVerifier(inputdir.as_ptr()) };
