@@ -72,7 +72,7 @@ async fn main() -> Result<()> {
                 Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
-                    return Err("Failed to setup_and_generate_sol_verifier.";
+                    return Err("Failed to setup_and_generate_sol_verifier.");
                 },
             }
     }
