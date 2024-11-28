@@ -51,10 +51,11 @@ pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Re
 }
 
 #[cfg(feature = "snark")]
-pub fn setup_and_generate_sol_verifier(inputdir: &str, &mut result) -> anyhow::Result<()> {
+pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<()> {
     let inputdir = std::ffi::CString::new(inputdir).unwrap();
+    let mut result: *mut libc::c_char = std::ptr::null_mut();
 
-    let ret = unsafe { SetupAndGenerateSolVerifier(inputdir.as_ptr()) };
+    let ret = unsafe { SetupAndGenerateSolVerifier(inputdir.as_ptr(), &mut result) };
     if ret == 0 {
         Ok(true)
     } else {
