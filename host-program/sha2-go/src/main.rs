@@ -71,7 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
             .await {
-                Ok(()) => Ok(),
+                Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
                     return Err("Failed to setup_and_generate_sol_verifier.".into());
