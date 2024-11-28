@@ -1,5 +1,4 @@
 use crate::prover::{Prover, ProverInput, ProverResult};
-use anyhow::Context;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::fs;
@@ -81,7 +80,6 @@ impl LocalProver {
         LocalProver {
             tasks: Arc::new(Mutex::new(HashMap::new())),
             vk_path: vk_path.to_string(),
-            // setup_flag: flag,
         }
     }
 }
