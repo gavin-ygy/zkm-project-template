@@ -86,19 +86,6 @@ impl LocalProver {
     }
 }
 
-pub fn delete_dir_contents<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
-    for entry in fs::read_dir(path).context("Failed to read directory")? {
-        let entry = entry.context("Failed to read directory entry")?;
-        let path = entry.path();
-
-        if path.is_dir() {
-            delete_dir_contents(&path).context("Failed to delete directory contents")?;
-        } else {
-            fs::remove_file(&path).context("Failed to delete file")?;
-        }
-    }
-    Ok(())
-}
 
 #[async_trait]
 impl Prover for LocalProver {
@@ -152,11 +139,11 @@ impl Prover for LocalProver {
         //delete_dir_contents(vk_path).unwrap();
         let tem_dir = "/tmp/setup";
         let path = Path::new(tem_dir);
-        if !path.is_dir() {
-            fs::create_dir_all(tem_dir).unwrap();
-        } else {
-            delete_dir_contents(tem_dir).unwrap();
+        if path.is_dir() {
+            fs::remove_dir_all(tem_dir).unwrap();
         }
+        fs::create_dir_all(tem_dir).unwrap();
+
         let should_agg = crate::local::stark::prove_stark(input, tem_dir, &mut result).unwrap();
         if !should_agg {
             log::info!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters.");
