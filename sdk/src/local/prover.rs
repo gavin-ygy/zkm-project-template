@@ -1,4 +1,5 @@
 use crate::prover::{Prover, ProverInput, ProverResult};
+use anyhow::bail;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::fs;
@@ -8,7 +9,6 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 use tokio::time::sleep;
-use anyhow::bail;
 
 pub struct ProverTask {
     proof_id: String,
@@ -48,24 +48,24 @@ impl ProverTask {
                 self.input.seg_size
             );
         } else {
-            match  crate::local::snark::prove_snark(&vk_path, &inputdir, &outputdir) {
+            match crate::local::snark::prove_snark(&vk_path, &inputdir, &outputdir) {
                 Ok(()) => {
                     result.stark_proof =
-                    std::fs::read(format!("{}/proof_with_public_inputs.json", inputdir)).unwrap();
+                        std::fs::read(format!("{}/proof_with_public_inputs.json", inputdir))
+                            .unwrap();
                     result.proof_with_public_inputs =
-                    std::fs::read(format!("{}/snark_proof_with_public_inputs.json", outputdir))
-                        .unwrap();
+                        std::fs::read(format!("{}/snark_proof_with_public_inputs.json", outputdir))
+                            .unwrap();
                     //result.solidity_verifier =
                     //    std::fs::read(format!("{}/verifier.sol", outputdir)).unwrap();
                     result.public_values =
-                    std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
-                },
+                        std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
+                }
                 Err(e) => {
-                    log::error!("prove_snark error : {}", e);  
-                },
+                    log::error!("prove_snark error : {}", e);
+                }
             }
-            
-        } 
+        }
         self.result = Some(result);
         self.is_done = true;
     }
@@ -88,7 +88,6 @@ impl LocalProver {
         }
     }
 }
-
 
 #[async_trait]
 impl Prover for LocalProver {
@@ -138,7 +137,7 @@ impl Prover for LocalProver {
         let path = Path::new(vk_path);
 
         if path.is_dir() {
-            fs::remove_dir_all(vk_path).unwrap(); 
+            fs::remove_dir_all(vk_path).unwrap();
         }
         fs::create_dir_all(vk_path).unwrap();
 
@@ -152,11 +151,11 @@ impl Prover for LocalProver {
             Ok(()) => {
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
-            },
+            }
             Err(e) => {
                 log::error!("setup_and_generate_sol_verifier error : {}", e);
-                bail!("setup_and_generate_sol_verifier error");   
-            },
+                bail!("setup_and_generate_sol_verifier error");
+            }
         }
     }
 

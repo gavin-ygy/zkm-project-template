@@ -157,7 +157,7 @@ impl ProverClient {
         zkm_prover: &str,
         vk_path: &str,
         prover_input: &ProverInput,
-    )  -> anyhow::Result<()> {
+    ) -> anyhow::Result<()> {
         if is_local_prover(zkm_prover) {
             log::info!("Excuting the setup.");
             let _ = self
