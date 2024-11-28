@@ -23,7 +23,7 @@ pub struct ProverInput {
     pub private_inputstream: Vec<u8>,
     pub seg_size: u32,
     pub execute_only: bool,
-    pub args: String,
+    pub args: String = String::new(),
 }
 
 impl ProverInput {
