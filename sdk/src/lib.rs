@@ -48,14 +48,14 @@ pub fn save_data_as_json<T: Serialize>(
     data: &T,
 ) -> anyhow::Result<()> {
     // Create the output directory
-    fs::create_dir_all(output_dir).context("Failed to create output directory")?;
+    fs::create_dir_all(output_dir).unwrap();
 
     // Build the full file path
     let output_path = Path::new(&output_dir).join(file_name);
 
     // Open the file and write the data
-    let mut file = File::create(&output_path).context("Unable to create file")?;
-    to_writer(&mut file, data).context("Failed to write to file")?;
+    let mut file = File::create(&output_path).unwrap();
+    to_writer(&mut file, data)?;
 
     log::info!("Data successfully written to file.");
     Ok(())

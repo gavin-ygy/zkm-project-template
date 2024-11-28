@@ -149,13 +149,13 @@ impl Prover for LocalProver {
         if !path.is_dir() {
             fs::create_dir_all(vk_path).unwrap();
         }
-        //delete_dir_contents(vk_path).context("Failed to clear input directory")?;
+        //delete_dir_contents(vk_path).unwrap();
         let tem_dir = "/tmp/setup";
         let path = Path::new(tem_dir);
         if !path.is_dir() {
             fs::create_dir_all(tem_dir).unwrap();
         } else {
-            delete_dir_contents(tem_dir).context("Failed to clear input directory")?;
+            delete_dir_contents(tem_dir).unwrap();
         }
         let should_agg = crate::local::stark::prove_stark(input, tem_dir, &mut result).unwrap();
         if !should_agg {
