@@ -72,7 +72,7 @@ async fn main() -> Result<()> {
                 Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
-                    return Err("Failed to setup_and_generate_sol_verifier.");
+                    return Err(anyhow!("Failed to setup_and_generate_sol_verifier."));
                 },
             }
     }
@@ -101,12 +101,11 @@ async fn main() -> Result<()> {
         }
         Ok(None) => {
             log::info!("Failed to generate proof.The result is None.");
-            return Err("Failed to generate proof.");
+            return Err(anyhow!("Failed to generate proof."));
         }
         Err(e) => {
             log::info!("Failed to generate proof. error: {}", e);
-            return Err("Failed to generate proof.");
-
+            return Err(anyhow!("Failed to generate proof."));
         }
     }
 
