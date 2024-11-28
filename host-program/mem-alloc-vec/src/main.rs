@@ -48,7 +48,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         domain_name: Some(domain_name),
         private_key: Some(private_key),
         vk_path: vk_path.to_owned(),
-        //setup_flag: setup_flag1,
     };
 
     let prover_client = ProverClient::new(&client_config).await;
@@ -68,11 +67,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //excuting the setup_and_generate_sol_verifier
     if setup_flag {
-        prover_client
+        match prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
-            .await;
+            .await {
+                Ok(()) => Ok(()),
+                Err(e) => {
+                    log::info!("Error during setup_and_generate_sol_verifier: {}", e);
+                    return Err("Failed to setup_and_generate_sol_verifier.".into());
+                }
+            }
 
-        //   return Ok(());
     }
 
     let start = Instant::now();

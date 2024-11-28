@@ -11,16 +11,16 @@ pub const DEFALUT_PROVER_NETWORK_DOMAIN: &str = "stage";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::try_init().unwrap_or_default();
-    let seg_size1 = env::var("SEG_SIZE")
+    let seg_size = env::var("SEG_SIZE")
         .ok()
         .and_then(|seg| seg.parse::<u32>().ok())
         .unwrap_or(65536);
 
-    let execute_only1 = env::var("EXECUTE_ONLY")
+    let execute_only = env::var("EXECUTE_ONLY")
         .ok()
         .and_then(|seg| seg.parse::<bool>().ok())
         .unwrap_or(false);
-    let setup_flag1 = env::var("SETUP_FLAG")
+    let setup_flag = env::var("SETUP_FLAG")
         .ok()
         .and_then(|seg| seg.parse::<bool>().ok())
         .unwrap_or(false);
@@ -32,23 +32,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let vk_path1 = env::var("VERIFYING_KEY_PATH").unwrap_or("/tmp/input".to_string());
 
     //network proving
-    let endpoint1 = env::var("ENDPOINT").unwrap_or(DEFAULT_PROVER_NETWORK_RPC.to_string());
-    let ca_cert_path1 = env::var("CA_CERT_PATH").unwrap_or("".to_string());
-    let cert_path1 = env::var("CERT_PATH").unwrap_or("".to_string());
-    let key_path1 = env::var("KEY_PATH").unwrap_or("".to_string());
-    let domain_name1 = env::var("DOMAIN_NAME").unwrap_or(DEFALUT_PROVER_NETWORK_DOMAIN.to_string());
-    let private_key1 = env::var("PRIVATE_KEY").unwrap_or("".to_string());
+    let endpoint = env::var("ENDPOINT").unwrap_or(DEFAULT_PROVER_NETWORK_RPC.to_string());
+    let ca_cert_path = env::var("CA_CERT_PATH").unwrap_or("".to_string());
+    let cert_path = env::var("CERT_PATH").unwrap_or("".to_string());
+    let key_path = env::var("KEY_PATH").unwrap_or("".to_string());
+    let domain_name = env::var("DOMAIN_NAME").unwrap_or(DEFALUT_PROVER_NETWORK_DOMAIN.to_string());
+    let private_key = env::var("PRIVATE_KEY").unwrap_or("".to_string());
     let zkm_prover_type = env::var("ZKM_PROVER").expect("ZKM PROVER is missing");
 
     let client_config: ClientCfg = ClientCfg {
         zkm_prover: zkm_prover_type.to_owned(),
-        endpoint: Some(endpoint1),
-        ca_cert_path: Some(ca_cert_path1),
-        cert_path: Some(cert_path1),
-        key_path: Some(key_path1),
-        domain_name: Some(domain_name1),
-        private_key: Some(private_key1),
-        vk_path: vk_path1.to_owned(),
+        endpoint: Some(endpoint),
+        ca_cert_path: Some(ca_cert_path),
+        cert_path: Some(cert_path),
+        key_path: Some(key_path),
+        domain_name: Some(domain_name),
+        private_key: Some(private_key),
+        vk_path: vk_path.to_owned(),
     };
 
     let prover_client = ProverClient::new(&client_config).await;
@@ -58,8 +58,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         elf: read(elf_path).unwrap(),
         public_inputstream: vec![],
         private_inputstream: vec![],
-        seg_size: seg_size1,
-        execute_only: execute_only1,
+        seg_size,
+        execute_only,
         args: "".into(),
     };
 
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     set_guest_input(&mut prover_input, Some(&args_parameter));
 
     //excuting the setup_and_generate_sol_verifier
-    if setup_flag1 {
+    if setup_flag {
         prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path1, &prover_input)
             .await;
@@ -78,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let proving_result = prover_client.prover.prove(&prover_input, None).await;
     match proving_result {
         Ok(Some(prover_result)) => {
-            if !execute_only1 {
+            if !execute_only {
                 //excute the guest program and generate the proof
                 prover_client
                     .process_proof_results(
@@ -173,5 +173,4 @@ fn set_guest_input(input: &mut ProverInput, args: Option<&str>) {
     bincode::serialize_into(&mut pub_buf, &data).expect("serialization failed");
 
     input.public_inputstream = pub_buf;
-    // input.private_inputstream = pri_buf;
 }
