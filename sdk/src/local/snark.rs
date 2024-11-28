@@ -2,7 +2,6 @@ extern crate libc;
 use libc::c_int;
 use std::os::raw::c_char;
 use std::path::Path;
-use anyhow::Context;
 use anyhow::bail;
 
 extern "C" {
@@ -37,9 +36,9 @@ pub fn prove_snark(keypath: &str, inputdir: &str, outputdir: &str) -> anyhow::Re
     if ret == 0 {
         Ok(())
     } else {
-        let error_str = std::ffi::CStr::from_ptr(result).to_string_lossy();
+        let error_str = unsafe { std::ffi::CStr::from_ptr(result).to_string_lossy() };
         // Free the allocated C string
-        libc::free(result as *mut libc::c_void);
+        unsafe { libc::free(result as *mut libc::c_void) };
         //Ok(false)
         bail!("prove_snark error: {}", error_str)
     }
@@ -59,9 +58,9 @@ pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<()> {
     if ret == 0 {
         Ok(true)
     } else {
-        let error_str = std::ffi::CStr::from_ptr(result).to_string_lossy();
+        let error_str = unsafe { std::ffi::CStr::from_ptr(result).to_string_lossy() };
         // Free the allocated C string
-        libc::free(result as *mut libc::c_void);
+        unsafe { libc::free(result as *mut libc::c_void) };
         //Ok(false)
         bail!("prove_snark error: {}", error_str)
     }
