@@ -21,7 +21,6 @@ use alloc::string::ToString;
 use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
 
-#![feature(asm_experimental_arch)]
 zkm_runtime::entrypoint!(main);
 
 pub fn main() {
