@@ -12,17 +12,6 @@ pub const DEFALUT_PROVER_NETWORK_DOMAIN: &str = "stage";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::try_init().unwrap_or_default();
-    /*let args: Vec<String> = env::args().collect();
-    let helper = || {
-        log::info!("Help: {} local or network", args[0]);
-        std::process::exit(-1);
-    };
-    if args.len() < 2 {
-        helper();
-    }*/
-
-    //let zkm_prover_type = &args[1];
-
     let seg_size1 = env::var("SEG_SIZE")
         .ok()
         .and_then(|seg| seg.parse::<u32>().ok())
@@ -108,7 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 //the sha2-rust guest program has outputs messages, which are basic type.
                 prover_client
                     .print_guest_execution_output(true, &prover_result)
-                    .expect("print guest program excution's output.");
+                    .expect("print guest program excution's output false.");
             }
         }
         Ok(None) => {
@@ -128,7 +117,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn set_guest_input(input: &mut ProverInput, _param: Option<&str>) {
-    //input.public_inputstream.push(1);
     let num_bytes: usize = 1024; //Notice! : if this value is small, it will not generate the  proof.
     let pri_input = vec![5u8; num_bytes];
     let mut hasher = Sha256::new();

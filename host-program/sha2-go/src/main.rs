@@ -11,17 +11,6 @@ pub const DEFALUT_PROVER_NETWORK_DOMAIN: &str = "stage";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::try_init().unwrap_or_default();
-    /*let args: Vec<String> = env::args().collect();
-    let helper = || {
-        log::info!("Help: {} local or network", args[0]);
-        std::process::exit(-1);
-    };
-    if args.len() < 2 {
-        helper();
-    }*/
-
-    //let zkm_prover_type = &args[1];
-
     let seg_size1 = env::var("SEG_SIZE")
         .ok()
         .and_then(|seg| seg.parse::<u32>().ok())
@@ -104,7 +93,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 //the sha2-go guest program has outputs messages, which are struct type.
                 prover_client
                     .print_guest_execution_output_struct::<Data>(&prover_result)
-                    .expect("print guest program excution's output.");
+                    .expect("print guest program excution's output false.");
             }
         }
         Ok(None) => {
