@@ -104,7 +104,7 @@ async fn main() -> Result<()> {
         }
         Ok(None) => {
             log::info!("Failed to generate proof.The result is None.");
-            return Err("Failed to generate proof.";
+            return Err("Failed to generate proof.");
         }
         Err(e) => {
             log::info!("Failed to generate proof. error: {}", e);
