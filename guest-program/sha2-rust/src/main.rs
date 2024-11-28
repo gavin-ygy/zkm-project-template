@@ -5,6 +5,7 @@ use sha2::{Digest, Sha256};
 extern crate alloc;
 use alloc::vec::Vec;
 
+#![feature(asm_experimental_arch)]
 zkm_runtime::entrypoint!(main);
 
 pub fn main() {
