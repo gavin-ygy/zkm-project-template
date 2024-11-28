@@ -34,7 +34,7 @@ impl ProverInput {
             private_inputstream: Vec::new(),
             seg_size: 0, 
             execute_only: false,
-            args: "".to_string(), // empty string
+            args: "".to_owned(), // empty string
         }
     }
 }
