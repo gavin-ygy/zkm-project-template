@@ -1,6 +1,7 @@
 use std::env;
 use std::fs::read;
 use anyhow::Result;
+use anyhow::bail;
 use std::time::Instant;
 use zkm_sdk::{prover::ClientCfg, prover::ProverInput, ProverClient};
 
@@ -72,7 +73,7 @@ async fn main() -> Result<()> {
                 Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
                 Err(e) => {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
-                    return Err(anyhow!("Failed to setup_and_generate_sol_verifier."));
+                    bail!("Failed to setup_and_generate_sol_verifier.");
                 },
             }
     }
@@ -101,11 +102,11 @@ async fn main() -> Result<()> {
         }
         Ok(None) => {
             log::info!("Failed to generate proof.The result is None.");
-            return Err(anyhow!("Failed to generate proof."));
+            bail!(anyhow!("Failed to generate proof.");
         }
         Err(e) => {
             log::info!("Failed to generate proof. error: {}", e);
-            return Err(anyhow!("Failed to generate proof."));
+            bail!(anyhow!("Failed to generate proof.");
         }
     }
 
