@@ -2,8 +2,6 @@ package main
 
 import (
 	"C"
-	"errors"
-	"unsafe"
 )
 //import "fmt"
 
