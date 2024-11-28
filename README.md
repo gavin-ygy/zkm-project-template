@@ -157,7 +157,7 @@ If successful, it will output a similar log:
 [2024-11-23T13:12:33Z INFO  sha2_rust] new prover client,ok.
 [2024-11-23T13:12:33Z INFO  zkm_sdk] excuting the setup.
 [2024-11-23T13:12:33Z INFO  zkm_emulator::utils] Split done 66446 : 89443
-[2024-11-23T13:21:05Z INFO  zkm_sdk::local::stark] [*** the seg_num is:2 ***]
+[2024-11-23T13:21:05Z INFO  zkm_sdk::local::stark] [the seg_num is:2 ]
 [2024-11-23T13:21:55Z INFO  zkm_sdk::local::util] Process segment /mnt/data/gavin/zkm-project-template/host-program/sha2-rust/../test-vectors/input/segments/0
 [2024-11-23T13:21:59Z INFO  zkm_prover::cpu::bootstrap_kernel] Bootstrapping took 3228 cycles
 [2024-11-23T13:21:59Z INFO  zkm_prover::generation] CPU halted after 64762 cycles

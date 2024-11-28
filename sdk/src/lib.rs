@@ -135,7 +135,7 @@ impl ProverClient {
                 prover: Box::new(NetworkProver::new(client_config).await.unwrap()),
             },
             _ => panic!(
-                "invalid value for ZKM_PROVER enviroment variable: expected 'local', or 'network'"
+                "Invalid value for ZKM_PROVER enviroment variable: expected 'local', or 'network'"
             ),
         }
     }
@@ -159,7 +159,7 @@ impl ProverClient {
         prover_input: &ProverInput,
     )  -> anyhow::Result<()> {
         if is_local_prover(zkm_prover) {
-            log::info!("excuting the setup.");
+            log::info!("Excuting the setup.");
             let _ = self
                 .prover
                 .setup_and_generate_sol_verifier(vk_path, prover_input, None)
@@ -194,7 +194,7 @@ impl ProverClient {
         }
         //1.snark proof
         let output_dir = format!("{}/verifier", proof_results_path);
-        log::info!("save the snark proof:  ");
+        log::info!("Save the snark proof:  ");
         save_data_to_file(
             &output_dir,
             "snark_proof_with_public_inputs.json",
@@ -209,7 +209,7 @@ impl ProverClient {
         match public_inputs {
             Ok(Some(inputs)) => {
                 let output_dir = format!("{}/verifier", proof_results_path);
-                log::info!("save the public inputs:  ");
+                log::info!("Save the public inputs:  ");
                 save_data_as_json(&output_dir, "public_inputs.json", &inputs)?;
             }
             Ok(None) => {
@@ -225,7 +225,7 @@ impl ProverClient {
         //3.contract,only for network proving
         if !is_local_prover(zkm_prover_type) {
             let output_dir = format!("{}/src", proof_results_path);
-            log::info!("save the verifier contract:  ");
+            log::info!("Save the verifier contract:  ");
             save_data_to_file(
                 &output_dir,
                 "verifier.sol",
@@ -254,7 +254,7 @@ impl ProverClient {
                 bail!("output_stream.len() is too short.");
             }
             log::info!("Executing the guest program  successfully.");
-            log::info!("ret_data: {:?}", prover_result.output_stream);
+            log::info!("Guest's output messages: {:?}", prover_result.output_stream);
         } else {
             log::info!("Executing the guest program successfully without output any messages.")
         }
@@ -280,9 +280,9 @@ impl ProverClient {
         log::info!("Executing the guest program  successfully.");
         // Deserialize the struct
         let ret_data: T = bincode::deserialize_from(prover_result.output_stream.as_slice())
-            .context("deserialization failed")?;
+            .context("Deserialization failed")?;
 
-        log::info!("ret_data: {:?}", ret_data);
+        log::info!("Guest's output messages: {:?}", ret_data);
         Ok(())
     }
 }

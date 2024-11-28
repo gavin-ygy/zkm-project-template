@@ -9,7 +9,7 @@ pub const DEFAULT_PROVER_NETWORK_RPC: &str = "https://152.32.186.45:20002";
 pub const DEFALUT_PROVER_NETWORK_DOMAIN: &str = "stage";
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     env_logger::try_init().unwrap_or_default();
     let seg_size = env::var("SEG_SIZE")
         .ok()
@@ -91,13 +91,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         &proof_results_path,
                         &zkm_prover_type,
                     )
-                    .expect("process proof results error");
+                    .expect("Process proof results false");
             } else {
                 //only excute the guest program without generating the proof.
                 //the mem-alloc-vec guest program doesn't have output messages.
                 prover_client
                     .print_guest_execution_output(false, &prover_result)
-                    .expect("print guest program excution's output false.");
+                    .expect("Print guest program excution's output false.");
             }
         }
         Ok(None) => {

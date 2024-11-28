@@ -68,5 +68,5 @@ pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<()> {
 
 #[cfg(not(feature = "snark"))]
 pub fn setup_and_generate_sol_verifier(inputdir: &str) -> anyhow::Result<()> {
-    panic!("not support setup");
+    panic!("not support setup_and_generate_sol_verifier");
 }

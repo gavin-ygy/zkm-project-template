@@ -123,7 +123,7 @@ impl Prover for LocalProver {
                 self.tasks.lock().unwrap().remove(proof_id);
                 return Ok(task.lock().unwrap().result.clone());
             }
-            log::info!("waiting the proof result.");
+            log::info!("Waiting the proof result.");
             sleep(Duration::from_secs(30)).await;
         }
     }
@@ -145,8 +145,6 @@ impl Prover for LocalProver {
         let should_agg = crate::local::stark::prove_stark(input, vk_path, &mut result).unwrap();
         if !should_agg {
             log::info!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters.");
-            //return Err(anyhow::anyhow!(
-            //    "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
             bail!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!");
         }
 
@@ -167,9 +165,9 @@ impl Prover for LocalProver {
         input: &'a ProverInput,
         timeout: Option<Duration>,
     ) -> anyhow::Result<Option<ProverResult>> {
-        log::info!("calling request_proof.");
+        log::info!("Calling request_proof.");
         let proof_id = self.request_proof(input).await?;
-        log::info!("calling wait_proof, proof_id={}", proof_id);
+        log::info!("Calling wait_proof, proof_id={}", proof_id);
         self.wait_proof(&proof_id, timeout).await
     }
 }
