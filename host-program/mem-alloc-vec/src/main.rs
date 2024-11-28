@@ -61,10 +61,10 @@ async fn main() -> Result<()> {
         execute_only,
      //   args: "".into(),
     };*/
-    let mut input = ProverInput::default();
-    input.elf = read(elf_path).unwrap();
-    input.seg_size = seg_size;
-    input.execute_only = execute_only;
+    let mut prover_input = ProverInput::default();
+    prover_input.elf = read(elf_path).unwrap();
+    prover_input.seg_size = seg_size;
+    prover_input.execute_only = execute_only;
  
 
     //If the guest program does't have inputs, it does't need the set_guest_input().
