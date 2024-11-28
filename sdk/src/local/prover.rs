@@ -60,8 +60,7 @@ impl ProverTask {
                     std::fs::read(format!("{}/public_values.json", inputdir)).unwrap();
                 },
                 Err(e) => {
-                    log::error!("Snark error : {}", e);
-                    
+                    log::error!("prove_snark error : {}", e);  
                 },
             }
             
@@ -150,14 +149,14 @@ impl Prover for LocalProver {
         }
 
         match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
-            Ok(true) => {
+            Ok(()) => {
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
-            }
-            Ok(false) => Err(anyhow::anyhow!(
-                "snark: setup_and_generate_sol_verifier failed!"
-            )),
-            Err(_) => todo!(),
+            },
+            Err(e) => {
+                log::error!("setup_and_generate_sol_verifier error : {}", e);
+                bail!("setup_and_generate_sol_verifier error");   
+            },
         }
     }
 
