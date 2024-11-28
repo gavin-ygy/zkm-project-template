@@ -165,6 +165,8 @@ impl ProverClient {
                 .setup_and_generate_sol_verifier(vk_path, prover_input, None)
                 .await?;
         }
+
+        Ok(())
     }
 
     pub fn process_proof_results(
