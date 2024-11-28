@@ -163,7 +163,7 @@ impl ProverClient {
             let _ = self
                 .prover
                 .setup_and_generate_sol_verifier(vk_path, prover_input, None)
-                .await？;
+                .await?;
         }
     }
 
