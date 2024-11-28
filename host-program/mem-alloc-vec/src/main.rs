@@ -66,7 +66,7 @@ async fn main() -> Result<()> {
 
     //excuting the setup_and_generate_sol_verifier
     if setup_flag {
-        match prover_client
+        /*match prover_client
             .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
             .await {
                 Ok(()) => log::info!("Succussfully setup_and_generate_sol_verifier."),
@@ -74,7 +74,10 @@ async fn main() -> Result<()> {
                     log::info!("Error during setup_and_generate_sol_verifier: {}", e);
                     return Err("Failed to setup_and_generate_sol_verifier.".into());
                 },
-            }
+            }*/
+            prover_client
+            .setup_and_generate_sol_verifier(&zkm_prover_type, &vk_path, &prover_input)
+            .await?;
     }
 
     let start = Instant::now();
@@ -95,8 +98,8 @@ async fn main() -> Result<()> {
                 //only excute the guest program without generating the proof.
                 //the mem-alloc-vec guest program doesn't have output messages.
                 prover_client
-                    .print_guest_execution_output(false, &prover_result)
-                    .expect("Print guest program excution's output false.");
+                    .print_guest_execution_output(false, &prover_result)?;
+                    //.expect("Print guest program excution's output false.");
             }
         }
         Ok(None) => {
