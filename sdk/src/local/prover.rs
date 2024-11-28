@@ -133,48 +133,21 @@ impl Prover for LocalProver {
     ) -> anyhow::Result<()> {
         let mut result = ProverResult::default();
         let path = Path::new(vk_path);
-        if !path.is_dir() {
-            fs::create_dir_all(vk_path).unwrap();
-        }
-        //delete_dir_contents(vk_path).unwrap();
-        let tem_dir = "/tmp/setup";
-        let path = Path::new(tem_dir);
-        if path.is_dir() {
-            fs::remove_dir_all(tem_dir).unwrap();
-        }
-        fs::create_dir_all(tem_dir).unwrap();
 
-        let should_agg = crate::local::stark::prove_stark(input, tem_dir, &mut result).unwrap();
+        if path.is_dir() {
+            fs::remove_dir_all(vk_path).unwrap(); 
+        }
+        fs::create_dir_all(vk_path).unwrap();
+
+        let should_agg = crate::local::stark::prove_stark(input, vk_path, &mut result).unwrap();
         if !should_agg {
             log::info!("Setup: generating the stark proof false, please check the SEG_SIZE or other parameters.");
             return Err(anyhow::anyhow!(
                 "Setup: generating the stark proof false, please check the SEG_SIZE or other parameters!"));
         }
 
-        match crate::local::snark::setup_and_generate_sol_verifier(tem_dir) {
+        match crate::local::snark::setup_and_generate_sol_verifier(vk_path) {
             Ok(true) => {
-                //copy the result files to vk_path
-                //1. pk
-                let src_path = Path::new(tem_dir);
-                let src_file = src_path.join("proving.key");
-                let dst_path = Path::new(vk_path);
-                let dst_file = dst_path.join("proving.key");
-                fs::copy(src_file, dst_file)?;
-
-                //2. vk
-                let src_file = src_path.join("verifying.key");
-                let dst_file = dst_path.join("verifying.key");
-                fs::copy(src_file, dst_file)?;
-
-                //3. contract
-                let src_file = src_path.join("verifier.sol");
-                let dst_file = dst_path.join("verifier.sol");
-                fs::copy(src_file, dst_file)?;
-
-                //4. circuit
-                let src_file = src_path.join("circuit");
-                let dst_file = dst_path.join("circuit");
-                fs::copy(src_file, dst_file)?;
                 log::info!("setup_and_generate_sol_verifier successfully, the verify key and verifier contract are in the {}", vk_path);
                 Ok(())
             }
