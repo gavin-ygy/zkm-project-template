@@ -1,7 +1,6 @@
 use std::env;
-
 use std::fs::read;
-
+use anyhow::Result;
 use std::time::Instant;
 use zkm_sdk::{prover::ClientCfg, prover::ProverInput, ProverClient};
 
