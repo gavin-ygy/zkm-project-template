@@ -25,7 +25,7 @@ pub struct ProverInput {
     pub execute_only: bool,
     pub args: String,
 }
-
+/*
 impl ProverInput {
     pub fn default() -> Self {
         ProverInput {
@@ -37,7 +37,7 @@ impl ProverInput {
             args: "".to_owned(), // empty string
         }
     }
-}
+}*/
 
 #[derive(Debug, Default, Deserialize, Serialize, Clone)]
 pub struct ProverResult {
