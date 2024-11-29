@@ -59,6 +59,8 @@ async fn main() -> Result<()> {
 
     let mut prover_input = ProverInput {
         elf: read(elf_path).unwrap(),
+        public_inputstream: vec![],
+        private_inputstream: vec![],
         seg_size,
         execute_only
     };
